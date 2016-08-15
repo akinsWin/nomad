@@ -27,7 +27,7 @@ type VaultClient interface {
 
 type vaultClient struct {
 	running        bool
-	periodicToken  string
+	token          string
 	vaultAPIClient *vaultapi.Client
 	stopCh         chan struct{}
 	heap           *vaultClientHeap
@@ -98,14 +98,14 @@ func NewVaultClient(vaultConfig *config.VaultConfig) (*vaultClient, error) {
 	if vaultConfig == nil {
 		return nil, fmt.Errorf("nil, vaultConfig")
 	}
-	if vaultConfig.PeriodicToken == "" {
+	if vaultConfig.Token == "" {
 		return nil, fmt.Errorf("periodic_token not set")
 	}
 
 	return &vaultClient{
-		periodicToken: vaultConfig.PeriodicToken,
-		stopCh:        make(chan struct{}),
-		heap:          NewVaultDataHeap(),
+		token:  vaultConfig.Token,
+		stopCh: make(chan struct{}),
+		heap:   NewVaultDataHeap(),
 	}, nil
 }
 
@@ -323,7 +323,7 @@ func (c *vaultClient) getVaultAPIClient() (*vaultapi.Client, error) {
 		}
 
 		// Set the authentication required
-		client.SetToken(c.periodicToken)
+		client.SetToken(c.token)
 		c.vaultAPIClient = client
 	}
 
